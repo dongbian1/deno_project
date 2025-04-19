@@ -8,10 +8,13 @@ type EnvType = "development" | "production" | "test";
 
 // 环境变量接口
 interface EnvConfig {
-    // 端口号
+  // 端口号
   PORT: number;
   // 主机地址
   HOST: string;
+  // web项目地址
+  WEB_URL: string;
+
   // API接口前缀
   PREFIX: string;
 
@@ -26,7 +29,7 @@ interface EnvConfig {
   // 数据库名称
   DB_DATABASE: string;
 
-  // 日志文件多久删除一次
+  // 日志文件多久删除一次 单位小时
   DEL_LOG_TIME: number;
 }
 
@@ -36,6 +39,7 @@ const envConfigs: Record<EnvType, EnvConfig> = {
   development: {
     PORT: 8000,
     HOST: "127.0.0.1",
+    WEB_URL: 'localhost:5173',
     PREFIX: "/api",
     DB_URL: "localhost",
     DB_PORT: 3306,
@@ -48,6 +52,7 @@ const envConfigs: Record<EnvType, EnvConfig> = {
   test: {
     PORT: 8001,
     HOST: "127.0.0.1",
+    WEB_URL: 'localhost:5173',
     PREFIX: "/api",
     DB_URL: "localhost",
     DB_PORT: 3306,
@@ -60,6 +65,7 @@ const envConfigs: Record<EnvType, EnvConfig> = {
   production: {
     PORT: 80,
     HOST: "0.0.0.0",
+    WEB_URL: 'localhost:5173',
     PREFIX: "/api",
     DB_URL: "localhost",
     DB_PORT: 3306,
@@ -95,6 +101,7 @@ export function getEnv(): EnvConfig {
     return {
       PORT: Number(sysEnv.PORT || defaultConfig.PORT),
       HOST: sysEnv.HOST || defaultConfig.HOST,
+      WEB_URL: sysEnv.WEB_URL || defaultConfig.WEB_URL,
       PREFIX: sysEnv.API_URL || defaultConfig.PREFIX,
       DB_URL: sysEnv.DB_URL || defaultConfig.DB_URL,
       DB_PORT: Number(sysEnv.DB_PORT || defaultConfig.DB_PORT),

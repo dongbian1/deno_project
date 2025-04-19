@@ -1,145 +1,184 @@
-# Deno MySQL 工具类使用说明
+# Deno + Vue 全栈项目
 
-## 安装依赖
+基于 Deno + Oak 构建的服务端框架，支持代理到 Vue 开发服务器和生产环境打包。
 
-使用MySQL工具类之前，需要安装mysql2依赖：
+## 技术栈
+
+### 后端
+
+- Deno
+- Oak (Web 框架)
+- MySQL
+
+### 前端代理支持
+
+- Vue 3 + Vite 开发服务器代理
+- WebSocket 支持（用于 HMR）
+- 生产环境静态文件服务
+
+## 项目结构
+
+```
+.
+├── server/                # 服务器端代码
+│   ├── config/           # 配置文件
+│   │   └── env.ts        # 环境变量配置
+│   ├── middleware/       # 中间件
+│   │   └── frontend.ts   # 前端代理中间件
+│   ├── utils/           # 工具函数
+│   │   └── logger.ts    # 日志工具
+│   └── main.ts          # 服务器入口文件
+├── scripts/             # 构建脚本
+│   └── build.ts        # 构建脚本
+└── deno.json          # Deno 配置文件
+```
+
+## 功能特性
+
+### 1. 环境配置管理
+
+- 支持开发、测试、生产三种环境
+- 灵活的环境变量配置系统
+- 配置文件：`server/config/env.ts`
+
+```typescript
+// 环境配置示例
+{
+  PORT: 8000,              // 服务器端口
+  HOST: "127.0.0.1",      // 主机地址
+  WEB_URL: "localhost:5173", // 前端开发服务器地址
+  PREFIX: "/api",         // API 前缀
+  DB_URL: "localhost",    // 数据库地址
+  DB_PORT: 3306,          // 数据库端口
+  DB_USER: "root",        // 数据库账号
+  DB_PASSWORD: "123456",  // 数据库密码
+  DB_DATABASE: "deno",    // 库名
+  DEL_LOG_TIME: 12        // 日志文件定期清理时间 单位小时
+}
+```
+
+### 2. 中间件系统
+
+#### 前端代理中间件 (frontend.ts)
+
+- 开发环境
+  - 代理请求到外部 Vue 开发服务器
+  - 支持 WebSocket 连接（用于热重载）
+  - 自动转发请求头和请求体
+  - 支持 HMR（热模块替换）
+- 生产环境
+  - 服务静态文件
+  - 支持 SPA 路由
+
+### 3. 构建系统
+
+#### 开发模式
 
 ```bash
-# 允许npm依赖
-deno run -A --node-modules-dir npm:mysql2@^2.3.3
+deno run dev
 ```
 
-## 基本使用方法
+- 启动代理服务器
+- 自动转发请求到 Vue 开发服务器
+- 支持文件修改自动重载
 
-```typescript
-import { mysql } from "./pages/utils/mysql.ts";
+#### 生产构建
 
-// 查询多条记录
-const users = await mysql.findAll("users", { status: "active" });
-console.log(users);
-
-// 查询单条记录
-const user = await mysql.findOne("users", { id: 1 });
-console.log(user);
-
-// 插入记录
-const result = await mysql.insert("users", {
-  name: "张三",
-  email: "zhangsan@example.com",
-  created_at: new Date()
-});
-console.log(`插入ID: ${result.id}, 影响行数: ${result.affectedRows}`);
-
-// 更新记录
-const updateResult = await mysql.update(
-  "users",
-  { name: "李四", updated_at: new Date() },
-  { id: 1 }
-);
-console.log(`更新影响行数: ${updateResult.affectedRows}`);
-
-// 删除记录
-const deleteResult = await mysql.delete("users", { id: 1 });
-console.log(`删除影响行数: ${deleteResult.affectedRows}`);
-
-// 执行自定义SQL查询
-const data = await mysql.query("SELECT * FROM users WHERE age > ?", [18]);
-console.log(data);
-
-// 使用事务
-await mysql.transaction(async (conn) => {
-  await conn.query("UPDATE accounts SET balance = balance - ? WHERE id = ?", [100, 1]);
-  await conn.query("UPDATE accounts SET balance = balance + ? WHERE id = ?", [100, 2]);
-  // 如果上述操作有任何错误，会自动回滚
-});
-
-// 关闭连接
-await mysql.close();
+```bash
+deno run build:pro
 ```
 
-## 批量插入数据
+- 打包静态资源
+- 生成独立可执行文件
 
-```typescript
-import { mysql } from "./pages/utils/mysql.ts";
+### 4. 日志系统
 
-// 准备多条数据
-const users = [
-  { 
-    name: "张三", 
-    email: "zhangsan@example.com", 
-    created_at: new Date() 
-  },
-  { 
-    name: "李四", 
-    email: "lisi@example.com", 
-    created_at: new Date() 
-  },
-  { 
-    name: "王五", 
-    email: "wangwu@example.com", 
-    created_at: new Date() 
-  }
-];
+- 集成日志工具
+- 支持多级别日志
+- 自动日志清理
 
-// 批量插入数据
-try {
-  const result = await mysql.batchInsert("users", users);
-  console.log(`成功插入 ${result.affectedRows} 条记录，起始ID: ${result.insertId}`);
-} catch (error) {
-  console.error("批量插入失败:", error);
-}
+## 快速开始
+
+1. 安装 Deno
+
+```bash
+# Windows (PowerShell):
+irm https://deno.land/install.ps1 | iex
+
+# macOS/Linux:
+curl -fsSL https://deno.land/x/install/install.sh | sh
 ```
 
-## 完整API
+2. 克隆项目
 
-### 连接数据库
-- `mysql.connect()`: 连接到数据库
-
-### 关闭连接
-- `mysql.close()`: 关闭数据库连接
-
-### 查询操作
-- `mysql.query<T>(sql: string, params?: any[])`: 执行SQL查询
-- `mysql.findAll<T>(table: string, conditions?, fields?, orderBy?, limit?, offset?)`: 查询多条记录
-- `mysql.findOne<T>(table: string, conditions, fields?)`: 查询单条记录
-
-### 修改操作
-- `mysql.execute(sql: string, params?: any[])`: 执行SQL语句(插入/更新/删除)
-- `mysql.insert(table: string, data)`: 插入单条记录
-- `mysql.batchInsert(table: string, dataList)`: 批量插入多条记录
-- `mysql.update(table: string, data, conditions)`: 更新记录
-- `mysql.delete(table: string, conditions)`: 删除记录
-
-### 事务
-- `mysql.transaction<T>(callback: (conn) => Promise<T>)`: 执行事务
-
-## 环境变量配置
-
-在`config/env.ts`中配置数据库连接信息：
-
-```typescript
-// 环境变量接口
-interface EnvConfig {
-  // ...其他配置...
-  
-  // 数据库地址
-  DB_URL: string;
-  // 数据库用户名
-  DB_USER: string;
-  // 数据库密码
-  DB_PASSWORD: string;
-  // 数据库名称
-  DB_DATABASE: string;
-}
+```bash
+git clone <项目地址>
+cd <项目目录>
 ```
 
-## 日志记录
+3. 开发模式
 
-工具类自动记录所有SQL操作，包括：
-- 查询/执行的SQL语句
-- 绑定的参数
-- 执行耗时
-- 影响的行数
-- 错误信息
+```bash
+deno run dev
+```
 
-所有日志通过`logger`工具类记录，支持不同级别的日志。 
+4. 生产构建
+
+```bash
+deno run build:pro
+```
+
+5. 运行生产版本
+
+```bash
+./app  # Unix
+# 或
+app.exe  # Windows
+```
+
+## 环境变量
+
+| 变量名       | 说明                 | 默认值         |
+| ------------ | -------------------- | -------------- |
+| PORT         | 服务器端口           | 8000           |
+| HOST         | 服务器主机           | 127.0.0.1      |
+| WEB_URL      | 前端服务地址         | localhost:5173 |
+| PREFIX       | 接口前缀             | /api           |
+| DB_URL       | 数据库地址           | localhost      |
+| DB_PORT      | 数据库端口           | 3306           |
+| DB_USER      | 数据库账号           | root           |
+| DB_PASSWORD  | 数据库密码           | 123456         |
+| DB_DATABASE  | 数据库名             | deno           |
+| DEL_LOG_TIME | log 文件定期删除时间 |
+
+## 开发指南
+
+### 配置前端开发服务器
+
+1. 在环境配置中设置 `WEB_URL`
+2. 确保 Vue 开发服务器正在运行
+3. 启动代理服务器：`deno run dev`
+
+### 添加新的中间件
+
+1. 在 `server/middleware` 目录下创建新文件
+2. 实现中间件逻辑
+3. 在 `main.ts` 中注册中间件
+
+### 修改环境配置
+
+1. 在 `server/config/env.ts` 中添加新的配置项
+2. 更新 `EnvConfig` 接口
+3. 在相应环境中设置值
+
+## 注意事项
+
+1. 本项目仅提供代理服务器功能，不包含 Vue 项目的实际代码
+2. 开发环境需要外部运行的 Vue 开发服务器
+3. 生产环境需要已构建的 Vue 项目静态文件
+4. WebSocket 代理仅在开发环境中使用，用于支持 HMR
+5. 确保环境变量正确配置，特别是 `WEB_URL`
+
+## 许可证
+
+[MIT License](LICENSE)

@@ -3,6 +3,7 @@ import { errorBody } from "../utils/bodyFormat.ts";
 import { logger } from "../utils/logger.ts";
 import { env } from "../config/env.ts";
 import { mysql } from "../utils/mysql.ts";
+import { frontendMiddleware } from "../middleware/frontend.ts";
 
 /**
  * 路由配置
@@ -107,6 +108,18 @@ export const server = async (route: Array<RouterItem>) => {
     
     // 添加全局错误处理中间件
     app.use(errorMiddleware);
+
+    // 添加前端代理中间件
+    app.use(async (ctx, next) => {
+        const path = ctx.request.url.pathname;
+        // 如果是 API 请求，跳过前端代理
+        if (path.startsWith(PREFIX)) {
+            await next();
+        } else {
+            // 否则代理到前端应用
+            await frontendMiddleware(ctx, next);
+        }
+    });
 
     // 添加路由中间件
     app.use(router.routes())

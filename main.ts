@@ -1,9 +1,9 @@
-import { getFileData, readFileCSV, readFileExcel } from "./pages/read/index.ts";
-import { RouterItem, server } from "./pages/request/index.ts";
-import { CronJobManager } from "./pages/utils/cron.ts";
-import { env } from "./pages/config/env.ts";
-import { logger } from "./pages/utils/logger.ts";
-import { mysql } from "./pages/utils/mysql.ts";
+import { getFileData, readFileCSV, readFileExcel } from "./server/read/index.ts";
+import { RouterItem, server } from "./server/request/index.ts";
+import { CronJobManager } from "./server/utils/cron.ts";
+import { env } from "./server/config/env.ts";
+import { logger } from "./server/utils/logger.ts";
+import { mysql } from "./server/utils/mysql.ts";
 
 // 接口路由配置
 const routerArr: Array<RouterItem> = [

@@ -1,7 +1,7 @@
 {
   "tasks": {
     "dev": "DENO_ENV=development deno run --allow-read --allow-net --allow-env --allow-write --watch main.ts",
-    "build": "DENO_ENV=development deno compile --allow-read --allow-write --allow-net --allow-env --allow-write --unstable main.ts"
+    "build": "DENO_ENV=development deno compile --allow-read --allow-net --allow-env --allow-write --unstable main.ts"
   },
   "imports": {
     "@std/assert": "jsr:@std/assert@1",
