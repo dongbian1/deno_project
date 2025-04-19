@@ -26,11 +26,14 @@
 │   ├── middleware/       # 中间件
 │   │   └── frontend.ts   # 前端代理中间件
 │   ├── utils/           # 工具函数
+│   │   └── bodyFormat.ts    # body格式化工具
+│   │   └── cron.ts    # 定时任务工具
 │   │   └── logger.ts    # 日志工具
-│   └── main.ts          # 服务器入口文件
-├── scripts/             # 构建脚本
-│   └── build.ts        # 构建脚本
-└── deno.json          # Deno 配置文件
+│   │   └── mysql.ts    # mysql链接工具
+│   │   └── request.ts    # web服务工具
+└── deno.json           # Deno 配置文件
+└── main.ts             # 服务器入口文件
+
 ```
 
 ## 功能特性
@@ -112,8 +115,8 @@ curl -fsSL https://deno.land/x/install/install.sh | sh
 2. 克隆项目
 
 ```bash
-git clone <项目地址>
-cd <项目目录>
+git clone https://github.com/dongbian1/deno_project
+cd deno_project
 ```
 
 3. 开发模式
@@ -149,7 +152,7 @@ app.exe  # Windows
 | DB_USER      | 数据库账号           | root           |
 | DB_PASSWORD  | 数据库密码           | 123456         |
 | DB_DATABASE  | 数据库名             | deno           |
-| DEL_LOG_TIME | log 文件定期删除时间 |
+| DEL_LOG_TIME | log 文件定期删除时间 | 12             |
 
 ## 开发指南
 
@@ -178,7 +181,3 @@ app.exe  # Windows
 3. 生产环境需要已构建的 Vue 项目静态文件
 4. WebSocket 代理仅在开发环境中使用，用于支持 HMR
 5. 确保环境变量正确配置，特别是 `WEB_URL`
-
-## 许可证
-
-[MIT License](LICENSE)

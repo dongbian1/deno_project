@@ -1,8 +1,8 @@
 import { Application, HTTPMethods, Middleware, Router, RouterContext, isHttpError, Status } from "https://deno.land/x/oak/mod.ts"
-import { errorBody } from "../utils/bodyFormat.ts";
-import { logger } from "../utils/logger.ts";
+import { errorBody } from "./bodyFormat.ts";
+import { logger } from "./logger.ts";
 import { env } from "../config/env.ts";
-import { mysql } from "../utils/mysql.ts";
+import { mysql } from "./mysql.ts";
 import { frontendMiddleware } from "../middleware/frontend.ts";
 
 /**

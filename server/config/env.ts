@@ -29,7 +29,7 @@ interface EnvConfig {
   // 数据库名称
   DB_DATABASE: string;
 
-  // 日志文件多久删除一次 单位小时
+  // 日志文件多久删除一次
   DEL_LOG_TIME: number;
 }
 
