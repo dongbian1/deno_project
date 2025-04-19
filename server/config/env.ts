@@ -25,6 +25,9 @@ interface EnvConfig {
   DB_PASSWORD: string;
   // 数据库名称
   DB_DATABASE: string;
+
+  // 日志文件多久删除一次
+  DEL_LOG_TIME: number;
 }
 
 // 各环境配置
@@ -38,7 +41,8 @@ const envConfigs: Record<EnvType, EnvConfig> = {
     DB_PORT: 3306,
     DB_USER: "root",
     DB_PASSWORD: "123456",
-    DB_DATABASE: "test"
+    DB_DATABASE: "deno",
+    DEL_LOG_TIME: 12
   },
   // 测试环境
   test: {
@@ -49,7 +53,8 @@ const envConfigs: Record<EnvType, EnvConfig> = {
     DB_PORT: 3306,
     DB_USER: "root",
     DB_PASSWORD: "123456",
-    DB_DATABASE: "test"
+    DB_DATABASE: "deno",
+    DEL_LOG_TIME: 12
   },
   // 生产环境
   production: {
@@ -60,7 +65,8 @@ const envConfigs: Record<EnvType, EnvConfig> = {
     DB_PORT: 3306,
     DB_USER: "root",
     DB_PASSWORD: "123456",
-    DB_DATABASE: "test"
+    DB_DATABASE: "deno",
+    DEL_LOG_TIME: 12
   },
 };
 
@@ -95,9 +101,10 @@ export function getEnv(): EnvConfig {
       DB_USER: sysEnv.DB_USER || defaultConfig.DB_USER,
       DB_PASSWORD: sysEnv.DB_PASSWORD || defaultConfig.DB_PASSWORD,
       DB_DATABASE: sysEnv.DB_DATABASE || defaultConfig.DB_DATABASE,
+      DEL_LOG_TIME: Number(sysEnv.DEL_LOG_TIME || defaultConfig.DEL_LOG_TIME)
     };
   } catch (error) {
-    logger.error("读取环境变量失败", error);
+    logger.error("读取环境变量失败", { error });
     // 返回开发环境默认配置
     return envConfigs.development;
   }

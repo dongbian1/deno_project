@@ -93,16 +93,6 @@ export const server = async (route: Array<RouterItem>) => {
     const HOST = env.HOST;
     const PREFIX = env.PREFIX;
 
-    // 检测数据库连接
-    try {
-        logger.info("正在检测数据库连接...");
-        await mysql.connect();
-        logger.info("数据库连接检测成功");
-    } catch (error) {
-        logger.error("数据库连接失败，服务可能无法正常访问数据", error);
-        // 继续启动服务，但数据库操作可能会失败
-    }
-
     // 创建应用
     const router = new Router()
     const app = new Application()
@@ -124,7 +114,7 @@ export const server = async (route: Array<RouterItem>) => {
     // 添加路由方法中间件
     app.use(router.allowedMethods())
 
-    logger.info(`服务启动成功: http://${HOST}:${PORT}${PREFIX}`, {
+    logger.info(`服务启动成功: http://${HOST}:${PORT}`, {
         host: HOST,
         port: PORT,
         dbConnected: mysql.getConnectionStatus(),
