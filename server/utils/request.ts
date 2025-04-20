@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 请求处理工具类，包含路由配置、中间件和服务器启动功能
+ * @module server/utils/request
+ */
+
 import { Application, HTTPMethods, Middleware, Router, RouterContext, isHttpError, Status } from "https://deno.land/x/oak/mod.ts"
 import { errorBody } from "./bodyFormat.ts";
 import { logger } from "./logger.ts";
@@ -6,19 +11,36 @@ import { mysql } from "./mysql.ts";
 import { frontendMiddleware } from "../middleware/frontend.ts";
 
 /**
- * 路由配置
+ * 路由配置接口
+ * @interface RouterItem
+ * @description 定义单个路由项的配置结构
  */
 export interface RouterItem {
-    /** 接口地址 */
+    /** 
+     * 接口地址
+     * @type {string}
+     * @description API 端点的 URL 路径
+     */
     url: string;
-    /** 接口类型 */
+    /** 
+     * 接口类型
+     * @type {HTTPMethods}
+     * @description HTTP 请求方法（GET, POST, PUT, DELETE 等）
+     */
     method: HTTPMethods;
-    /** 回调函数 */
+    /** 
+     * 回调函数
+     * @type {Function}
+     * @description 处理请求的控制器函数
+     * @param {RouterContext<string>} ctx - Oak 路由上下文对象
+     */
     callback: (ctx: RouterContext<string>) => void
 }
 
 /**
  * 请求日志中间件
+ * @type {Middleware}
+ * @description 记录所有 HTTP 请求的日志信息，包括请求开始、完成和错误情况
  */
 const loggerMiddleware: Middleware = async (ctx, next) => {
     const start = Date.now();
@@ -63,6 +85,8 @@ const loggerMiddleware: Middleware = async (ctx, next) => {
 
 /**
  * 全局错误拦截器中间件
+ * @type {Middleware}
+ * @description 统一处理应用中的错误，将错误转换为标准的 HTTP 响应
  */
 const errorMiddleware: Middleware = async (ctx, next) => {
     try {
@@ -86,7 +110,12 @@ const errorMiddleware: Middleware = async (ctx, next) => {
 };
 
 /**
- * 启动服务
+ * 启动服务器
+ * @async
+ * @function server
+ * @description 配置并启动 Oak 服务器，设置中间件、路由和错误处理
+ * @param {Array<RouterItem>} route - 路由配置数组
+ * @returns {Promise<void>}
  */
 export const server = async (route: Array<RouterItem>) => {
     // 获取环境变量配置
@@ -109,7 +138,12 @@ export const server = async (route: Array<RouterItem>) => {
     // 添加全局错误处理中间件
     app.use(errorMiddleware);
 
-    // 添加前端代理中间件
+    /** 
+     * 前端代理中间件
+     * @description 处理前端和 API 请求的路由分发
+     * @param {Context} ctx - Oak 上下文对象
+     * @param {Next} next - 下一个中间件函数
+     */
     app.use(async (ctx, next) => {
         const path = ctx.request.url.pathname;
         // 如果是 API 请求，跳过前端代理
@@ -121,12 +155,22 @@ export const server = async (route: Array<RouterItem>) => {
         }
     });
 
-    // 添加路由中间件
+    /** 
+     * 注册路由中间件
+     * @description 启用应用的路由处理
+     */
     app.use(router.routes())
 
-    // 添加路由方法中间件
+    /** 
+     * 注册路由方法中间件
+     * @description 添加 HTTP 方法验证，确保请求方法的合法性
+     */
     app.use(router.allowedMethods())
 
+    /** 
+     * 输出服务启动信息
+     * @description 记录服务器配置和运行环境信息
+     */
     logger.info(`服务启动成功: http://${HOST}:${PORT}`, {
         host: HOST,
         port: PORT,
@@ -134,6 +178,9 @@ export const server = async (route: Array<RouterItem>) => {
         environment: Deno.env.get("DENO_ENV") || "development"
     });
     
-    // 启动应用
+    /** 
+     * 启动应用服务器
+     * @description 在指定的主机和端口上启动 HTTP 服务器
+     */
     await app.listen(`${HOST}:${PORT}`)
 }
